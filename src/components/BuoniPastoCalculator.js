@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FaShoppingCart } from "react-icons/fa";
 import { MdAddShoppingCart } from "react-icons/md";
 
@@ -13,7 +13,22 @@ const BuoniPastoCalculator = () => {
 
     //funzione per aggiornare i valori
 
+
+    const checkInput = () => {
+        console.log(valoreBuono, descrizione, prezzo);
+        if (valoreBuono === 0 || descrizione === '' || prezzo === 0) {
+            setErrore(true);
+            return false
+        } else {
+            setErrore(false);
+            return true;
+        }
+    }
+
     const addItemShopList = (descrizione, prezzo) => {
+        if (!checkInput()) {
+            return false;
+        }
         if (descrizione === '') {
             console.log("errore");
             setErrore(true);
@@ -36,9 +51,6 @@ const BuoniPastoCalculator = () => {
     --------------------------------------------------------------------------------------------------- */
 
     const totaleSpesa = spesa.reduce((acc, item) => acc + item.prezzo, 0);
-
-
-
     const buoniUtilizzabili = () => {
         totaleSpesa.toFixed(2);
         if (!valoreBuono) {
@@ -58,24 +70,6 @@ const BuoniPastoCalculator = () => {
     const restoEuro = () => {
         return (totaleSpesa - (buoniUtilizzabili() * valoreBuono)).toFixed(2);
     }
-
-
-
-    // const nextVaucher = () => {
-    //     if (!valoreBuono) {
-    //         return 0
-    //     }
-    //     return valoreBuono - importoRimanente
-    // }
-
-    //const importoRimanente = totaleSpesa - (buoniUtilizzabili * valoreBuono);
-
-
-    useEffect(() => {
-        console.log(spesa);
-    }, [spesa])
-
-
 
     return (
         <div className="container">
@@ -140,7 +134,7 @@ const BuoniPastoCalculator = () => {
                     {
                         errore ? (
                             <div className="alert alert-danger" role="alert">
-                                Inserisci descrizione e prezzo del prodotto
+                                Attenzione, potrebbe mancare qualche parametro...
                             </div>
                         ) : (
                             <table className="table">
@@ -171,7 +165,14 @@ const BuoniPastoCalculator = () => {
                     <hr />
                     <div className='buoni'>
                         <p className={(diffXBuono() || buoniUtilizzabili() < 1) ? 'show' : 'hide'}>
-                            Aggiungi ancora <span>{diffXBuono()}€ </span>  per usare un buono
+                            {
+                                errore ? '' : (
+                                    <>
+                                        Aggiungi ancora <span>{diffXBuono()}€ </span>  per usare un buono
+                                    </>
+                                )
+                            }
+
                         </p>
 
                         <p className={diffXBuono() ? 'hide' : 'show'}>
