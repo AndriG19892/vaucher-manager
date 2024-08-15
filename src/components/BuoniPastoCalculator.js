@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaShoppingCart } from "react-icons/fa";
 import { MdAddShoppingCart } from "react-icons/md";
+import { IoTrash } from "react-icons/io5";
 
 
 
@@ -11,9 +12,9 @@ const BuoniPastoCalculator = () => {
     const [prezzo, setPrezzo] = useState('');
     const [errore, setErrore] = useState(false);
 
-    //funzione per aggiornare i valori
-
-
+    /*  -----------------------------------------------------------------------------------------------
+      checking input
+    --------------------------------------------------------------------------------------------------- */
     const checkInput = () => {
         console.log(valoreBuono, descrizione, prezzo);
         if (valoreBuono === 0 || descrizione === '' || prezzo === 0) {
@@ -24,7 +25,9 @@ const BuoniPastoCalculator = () => {
             return true;
         }
     }
-
+    /*  -----------------------------------------------------------------------------------------------
+      adding new product
+    --------------------------------------------------------------------------------------------------- */
     const addItemShopList = (descrizione, prezzo) => {
         if (!checkInput()) {
             return false;
@@ -47,10 +50,23 @@ const BuoniPastoCalculator = () => {
     }
 
     /*  -----------------------------------------------------------------------------------------------
+      Remove product by Id
+    --------------------------------------------------------------------------------------------------- */
+    const removeItemShopList = (id) => {
+
+        setSpesa(oldValue => {
+            return oldValue.filter(product => product.id !== id)
+        })
+    }
+
+
+
+    
+    /*  -----------------------------------------------------------------------------------------------
       operazioni su spesa e buoni pasto
     --------------------------------------------------------------------------------------------------- */
-
     const totaleSpesa = spesa.reduce((acc, item) => acc + item.prezzo, 0);
+
     const buoniUtilizzabili = () => {
         totaleSpesa.toFixed(2);
         if (!valoreBuono) {
@@ -60,8 +76,9 @@ const BuoniPastoCalculator = () => {
             return 0;
         return Math.floor(totaleSpesa / valoreBuono);
     }
+
     const diffXBuono = () => {
-        if (buoniUtilizzabili() >= 1)
+        if (buoniUtilizzabili() >= 1 || spesa.length === 0)
             return 0
         return valoreBuono - totaleSpesa;
     }
@@ -142,6 +159,7 @@ const BuoniPastoCalculator = () => {
                                     <tr>
                                         <th scope="col">Product</th>
                                         <th scope="col">Price</th>
+                                        <th scope='col'>Action</th>
                                     </tr>
                                 </thead>
                                 {
@@ -151,6 +169,7 @@ const BuoniPastoCalculator = () => {
                                                 <tr>
                                                     <td key={el.id}>{el.descrizione}</td>
                                                     <td>{el.prezzo}€</td>
+                                                    <td onClick={() => removeItemShopList(el.id)}><IoTrash /></td>
                                                 </tr>
                                             </tbody>
                                         )
@@ -161,16 +180,17 @@ const BuoniPastoCalculator = () => {
                     }
                 </div>
                 <div className="totals-display">
-                    <h4 className="totale-spesa">Totale Spesa: {totaleSpesa}€</h4>
+                    <h4 className="totale-spesa">Totale Spesa: {totaleSpesa.toFixed(2)}€</h4>
                     <hr />
                     <div className='buoni'>
                         <p className={(diffXBuono() || buoniUtilizzabili() < 1) ? 'show' : 'hide'}>
                             {
                                 errore ? '' : (
                                     <>
-                                        Aggiungi ancora <span>{diffXBuono()}€ </span>  per usare un buono
+                                        Aggiungi ancora <span>{diffXBuono().toFixed(2)}€ </span>  per usare un buono
                                     </>
                                 )
+
                             }
 
                         </p>

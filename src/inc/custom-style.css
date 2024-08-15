@@ -88,6 +88,9 @@ header h1 {
     margin: 30px auto;
     text-align: left;
 }
+.list-content svg{
+    fill: #cb2d02;
+}
 
 .list-content ul {
     display: flex;
