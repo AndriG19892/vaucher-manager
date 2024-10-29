@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaShoppingCart } from "react-icons/fa";
 import { MdAddShoppingCart } from "react-icons/md";
 import { IoTrash } from "react-icons/io5";
@@ -11,12 +11,13 @@ const BuoniPastoCalculator = () => {
     const [descrizione, setDescrizione] = useState('');
     const [prezzo, setPrezzo] = useState('');
     const [errore, setErrore] = useState(false);
+    const [messageBuoni, setMessageBuoni] = useState("");
 
     /*  -----------------------------------------------------------------------------------------------
       checking input
     --------------------------------------------------------------------------------------------------- */
     const checkInput = () => {
-        console.log(valoreBuono, descrizione, prezzo);
+        //console.log(valoreBuono, descrizione, prezzo);
         if (valoreBuono === 0 || descrizione === '' || prezzo === 0) {
             setErrore(true);
             return false
@@ -33,7 +34,7 @@ const BuoniPastoCalculator = () => {
             return false;
         }
         if (descrizione === '') {
-            console.log("errore");
+            //console.log("errore");
             setErrore(true);
             return false;
         }
@@ -49,6 +50,7 @@ const BuoniPastoCalculator = () => {
         setPrezzo('');
     }
 
+
     /*  -----------------------------------------------------------------------------------------------
       Remove product by Id
     --------------------------------------------------------------------------------------------------- */
@@ -59,15 +61,12 @@ const BuoniPastoCalculator = () => {
         })
     }
 
-
-
-    
     /*  -----------------------------------------------------------------------------------------------
       operazioni su spesa e buoni pasto
     --------------------------------------------------------------------------------------------------- */
     const totaleSpesa = spesa.reduce((acc, item) => acc + item.prezzo, 0);
 
-    const buoniUtilizzabili = () => {
+    const buoniUtilizzabili = useCallback(() => {
         totaleSpesa.toFixed(2);
         if (!valoreBuono) {
             return 0;
@@ -75,18 +74,38 @@ const BuoniPastoCalculator = () => {
         if (totaleSpesa < valoreBuono)
             return 0;
         return Math.floor(totaleSpesa / valoreBuono);
-    }
+    }, [totaleSpesa, valoreBuono]);
 
-    const diffXBuono = () => {
-        if (buoniUtilizzabili() >= 1 || spesa.length === 0)
-            return 0
-        return valoreBuono - totaleSpesa;
-    }
 
-    console.log("buoni utilizzabili " + buoniUtilizzabili());
+
     const restoEuro = () => {
         return (totaleSpesa - (buoniUtilizzabili() * valoreBuono)).toFixed(2);
     }
+
+    const diffXBuono = () => {
+        if (spesa.length === 0) {
+            //console.log("crash");
+            return 0
+        }
+        if (buoniUtilizzabili() >= 1) {
+
+            return valoreBuono - restoEuro();
+        }
+        return valoreBuono - totaleSpesa;
+    }
+
+    useEffect(() => {
+        if (buoniUtilizzabili() >= 1) {
+            setMessageBuoni("per usare il prossimo buono");
+        } else if (buoniUtilizzabili() < 1) {
+            setMessageBuoni("per usare un buono");
+        }
+    }, [buoniUtilizzabili]);
+
+    //console.log("differenza", diffXBuono());
+    //console.log("spesa", spesa.length);
+    //console.log("buoni utilizzabili ", buoniUtilizzabili());
+    //console.log(messageBuoni);
 
     return (
         <div className="container">
@@ -173,11 +192,9 @@ const BuoniPastoCalculator = () => {
                                                 </tr>
                                             </tbody>
                                         )
-                                    })
-                                }
+                                    })}
                             </table>
-                        )
-                    }
+                        )}
                 </div>
                 <div className="totals-display">
                     <h4 className="totale-spesa">Totale Spesa: {totaleSpesa.toFixed(2)}€</h4>
@@ -187,15 +204,12 @@ const BuoniPastoCalculator = () => {
                             {
                                 errore ? '' : (
                                     <>
-                                        Aggiungi ancora <span>{diffXBuono().toFixed(2)}€ </span>  per usare un buono
+                                        Aggiungi <span>{diffXBuono().toFixed(2)}€ </span>  {messageBuoni}
                                     </>
-                                )
-
-                            }
-
+                                )}
                         </p>
 
-                        <p className={diffXBuono() ? 'hide' : 'show'}>
+                        <p className={diffXBuono() && buoniUtilizzabili() < 1 ? 'hide' : 'show'}>
                             Buoni Utilizzabili: <span>{buoniUtilizzabili()}</span>
                         </p>
                         <p>Rimanenza: <span>{restoEuro()} €</span></p>
