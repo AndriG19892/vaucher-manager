@@ -2,9 +2,9 @@ const express = require ( 'express' );
 const config = require ( './config' );
 const dotenv = require ( 'dotenv' ).config ();
 const mongoose = require ( 'mongoose' );
-const {productSchema, productModel} = require ( './src/resources/products/product.model.js' );
-const {userSchema, userModel} = require ( './src/resources/users/users.model.js' );
-const userRoutes = require ( './src/resources/users/users.router' );
+const {productSchema, productModel} = require ( './src/models/product.model.js' );
+const {userSchema, userModel} = require ( './src/models/users.model.js' );
+const userRoutes = require ( './src/routes/users.router' );
 const app = express ();
 
 //routes
