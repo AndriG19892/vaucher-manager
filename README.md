@@ -1,70 +1,111 @@
-# Getting Started with Create React App
+# Voucher App 🧾
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Applicazione **full-stack** sviluppata con **React**, **Node.js** e
+**MongoDB**, containerizzata con **Docker** per la gestione di buoni pasto.
+permette di tenere sottocontrollo i tuoi buoni pasto lavorativi, modificarne la quantità e il valore e durante
+la spesa permette a seconda della che si effettua e a seconda del valora del buono pasto, di calcolare quanti buoni pasto
+stai utilizzando, quanto ti resta da pagare in contanti e quanto ti serve di valore di spesa per poter utilizzare il prossimo buono.
 
-## Available Scripts
+## 🚀 Avvio del progetto
 
-In the project directory, you can run:
+### 1. Clona il repository
 
-### `npm start`
+``` bash
+git clone https://github.com/AndriG19892/vaucher-manager.git
+cd vaucher-app
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 2. Avvia i container
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+``` bash
+docker compose up --build
+```
 
-### `npm test`
+> Questo comando costruisce e avvia sia il **frontend React** che il
+> **backend Node.js** (e MongoDB se incluso).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+L'app sarà accessibile agli indirizzi: 
+- **Frontend:** http://localhost:3000\
+- **Backend:** http://localhost:5000
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+API Disponibili:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Registrazione nuovo Utente:** http://localhost:5000/api/auth/register
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Login Utente:** http://localhost:5000/api/auth/login
 
-### `npm run eject`
+------------------------------------------------------------------------
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## ⚙️ Struttura del progetto
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    📦 voucher-app
+     ┣ 📂 src           → App React (porta 3000)
+     ┣ 📂 server        → Server Node.js (porta 5000)
+     ┣ 📜 docker-compose.yml
+     ┣ 📜 Dockerfile (per React dev)
+     ┣ 📜 README.md
+     ┗ 📜 .gitignore
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+------------------------------------------------------------------------
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+⚙️ File .env
 
-## Learn More
+## Crea un file .env (non incluso nel repository) dentro alla cartella server :
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## /server/.env
+**CONNECTION_STRING_DB**=mongodb://mongo:27017/voucher
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+**JWT_SECRET**=qualcosa-di-segreto
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🧑‍💻 Comandi utili
 
-### Analyzing the Bundle Size
+### Arrestare i container
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+``` bash
+docker compose down
+```
 
-### Making a Progressive Web App
+### Ricostruire tutto da zero
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+``` bash
+docker compose build --no-cache
+docker compose up
+```
 
-### Advanced Configuration
+### Aprire una shell nel container backend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+``` bash
+docker exec -it backend sh
+```
 
-### Deployment
+------------------------------------------------------------------------
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 🔒 File ignorati da Git
 
-### `npm run build` fails to minify
+I seguenti file non vengono tracciati da Git per sicurezza e pulizia:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+    /node_modules
+    /build
+    *.env
+    .DS_Store
+    npm-debug.log*
+
+------------------------------------------------------------------------
+
+## 🧰 Stack Tecnologico
+
+-   **Frontend:** React + Vite/CRA
+-   **Backend:** Node.js + Express
+-   **Database:** MongoDB
+-   **Container:** Docker + Docker Compose
+
+------------------------------------------------------------------------
+
+## 📝 Note
+
+-   Il progetto è configurato per lo sviluppo locale (hot-reload
+    attivo).\
+-   In produzione, sarà necessario creare un Dockerfile ottimizzato con
+    Nginx per il frontend.
