@@ -5,9 +5,11 @@ const ErrorMessage = require ( '../errors/ErrorMessages' );
 const jwt = require ( 'jsonwebtoken' );
 const config = require ( '../../config' );
 const bcrypt = require ( 'bcrypt' );
-const {vaucherModel, voucherModel} = require ( '../models/voucher.model' );
+const {voucherModel} = require ( '../models/voucher.model' );
 
-
+/*  --------------------------------------------
+Register
+------------------------------------------------- */
 exports.register = async ( req, res ) => {
     const errors = validationResult ( req );
     if ( !errors.isEmpty () ) {
@@ -72,6 +74,9 @@ exports.register = async ( req, res ) => {
     }
 }
 
+/*  --------------------------------------------
+Login
+------------------------------------------------- */
 exports.login = async ( req, res ) => {
     console.log ( "sono in login" )
     const errors = validationResult ( req );
