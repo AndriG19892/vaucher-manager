@@ -5,7 +5,7 @@ const ProtectedRoute = ( {children} ) => {
 
     if ( !token ) {
         return <Navigate
-            to='/'
+            to='/Login'
             replace
             state={ {message: 'Accesso negato, effettua il login'} }
         />

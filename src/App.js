@@ -1,7 +1,6 @@
 import './App.css';
-//importo i componenti
-import BuoniPastoCalculator from './components/BuoniPastoCalculator';
 import Navbar from './components/Navbar';
+import ProtectedRoutes from './routes/ProtectedRoute';
 
 //importo le pagine:
 
@@ -11,21 +10,24 @@ import Profilo from './pages/Profilo.jsx';
 import Settings from './pages/Settings.jsx';
 import Shop from './pages/Shop.jsx';
 import Vouchers from './pages/Vouchers.jsx';
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './inc/custom-style.css';
 
 function App() {
+    const userToken = localStorage.getItem ( 'token' );
     return (
         <Router>
             <Navbar/>
-            <div style={ {padding: "20px"} }>
+            <div>
                 <Routes>
-                    <Route path="/dashboard" element={ <Dashboard/> }/>
-                    <Route path="/shop" element={ <Shop/> }/>
-                    <Route path="/vouchers" element={ <Vouchers/> }/>
-                    <Route path="/profilo" element={ <Profilo/> }/>
-                    <Route path="/settings" element={ <Settings/> }/>
+                    <Route path="/login" element={ <Login/> }/>
+                    <Route path="/" element={ <ProtectedRoutes><Dashboard/></ProtectedRoutes> }/>
+                    <Route path="/dashboard" element={ <ProtectedRoutes><Dashboard/></ProtectedRoutes> }/>
+                    <Route path="/shop" element={ <ProtectedRoutes><Shop/></ProtectedRoutes> }/>
+                    <Route path="/vouchers" element={ <ProtectedRoutes><Vouchers/></ProtectedRoutes> }/>
+                    <Route path="/profilo" element={ <ProtectedRoutes><Profilo/></ProtectedRoutes> }/>
+                    <Route path="/settings" element={ <ProtectedRoutes><Settings/></ProtectedRoutes> }/>
                     <Route path="/login" element={ <Login/> }/>
                 </Routes>
             </div>
