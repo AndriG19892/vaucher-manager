@@ -2,6 +2,8 @@ import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {FaShoppingCart} from "react-icons/fa";
 import {MdAddShoppingCart} from "react-icons/md";
 import {IoTrash} from "react-icons/io5";
+import BottomNavbar from "../components/BottomNavbar";
+import styled from "styled-components";
 
 
 const BuoniPastoCalculator = () => {
@@ -140,134 +142,146 @@ const BuoniPastoCalculator = () => {
     //console.log(messageBuoni);
 
     return (
-        <div className="container">
-            <div className="container content-app">
-                <div className="vaucher-option">
-                    <div className="mb-3">
-                        <label className="form-label">Valore Singolo buono</label>
-                        <input
-                            type="number"
-                            className="form-control"
-                            placeholder={ valoreBuono }
-                            value={ valoreBuono }
-                            onChange={ ( e ) => setValoreBuono ( e.target.value ) }
-                        />
-                    </div>
-                </div>
-                <div className="shop-list-add">
-                    <div className="shoplist-option">
-                        <div className="title-shop-list">
-                            <MdAddShoppingCart/>
-                            <h4>New Product</h4>
-                        </div>
-
+        <ShopWrapper>
+            <div className="container">
+                <div className="container content-app">
+                    <div className="vaucher-option">
                         <div className="mb-3">
-                            <label className="form-label">Descrizione</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder='prodotto'
-                                id='descrizione'
-                                value={ descrizione }
-                                onChange={ ( e ) => setDescrizione ( e.target.value ) }  // Aggiorna lo stato descrizione
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Prezzo</label>
+                            <label className="form-label">Valore Singolo buono</label>
                             <input
                                 type="number"
                                 className="form-control"
-                                placeholder='prezzo'
-                                id='prezzo'
-                                min={ 0 }
-                                value={ prezzo }
-                                onChange={ ( e ) => setPrezzo ( e.target.value ) }
+                                placeholder={ valoreBuono }
+                                value={ valoreBuono }
+                                onChange={ ( e ) => setValoreBuono ( e.target.value ) }
                             />
                         </div>
-                        <div className="mb-3">
-                            <label className="form-label">Quantità</label>
-                            <input
-                                type="number"
-                                className="form-control"
-                                placeholder='1'
-                                id='quantita'
-                                value={ quantita }
-                                min={ 1 }
-                                onChange={ ( e ) => setQuantita ( parseInt ( e.target.value ) || 1 ) }
-                            />
-                        </div>
-                        <button className="btn btn-success" onClick={ () => {
-                            addItemShopList ( descrizione, prezzo, quantita );
-                        } }>Add Product
-                        </button>
                     </div>
-
-
-                </div>
-                <div className="list-header">
-                    <FaShoppingCart
-                        className='icons'
-                        onClick={ () => {
-                            removeItemFromLocalStorage ()
-                        } }
-                    />
-                    <h4>Shop List</h4>
-                </div>
-                <div className="list-content">
-                    {
-                        errore ? (
-                            <div className="alert alert-danger" role="alert">
-                                Attenzione, potrebbe mancare qualche parametro...
+                    <div className="shop-list-add">
+                        <div className="shoplist-option">
+                            <div className="title-shop-list">
+                                <MdAddShoppingCart/>
+                                <h4>New Product</h4>
                             </div>
-                        ) : (
-                            <table className="table">
-                                <thead>
-                                <tr>
-                                    <th scope="col">Product</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Q.ta</th>
-                                    <th scope='col'>Action</th>
-                                </tr>
-                                </thead>
-                                {
-                                    spesa.map ( ( el ) => {
-                                        return (
-                                            <tbody key={ el.id }>
-                                            <tr>
-                                                <td key={ el.id }>{ el.descrizione }</td>
-                                                <td>{ el.prezzo }€</td>
-                                                <td>{ el.qta }</td>
-                                                <td onClick={ () => removeItemShopList ( el.id ) }><IoTrash/></td>
-                                            </tr>
-                                            </tbody>
-                                        )
-                                    } ) }
-                            </table>
-                        ) }
-                </div>
-                <div className="totals-display">
-                    <h4 className="totale-spesa">Totale
-                        Spesa: { isNaN ( totaleSpesa ) ? '0.00' : totaleSpesa.toFixed ( 2 ) }€</h4>
-                    <hr/>
-                    <div className='buoni'>
-                        <p className={ (diffXBuono () || buoniUtilizzabili () < 1) ? 'show' : 'hide' }>
-                            {
-                                errore ? '' : (
-                                    <>
-                                        Aggiungi <span>{ diffXBuono ().toFixed ( 2 ) }€ </span> { messageBuoni }
-                                    </>
-                                ) }
-                        </p>
 
-                        <p className={ diffXBuono () && buoniUtilizzabili () < 1 ? 'hide' : 'show' }>
-                            Buoni Utilizzabili: <span>{ buoniUtilizzabili () }</span>
-                        </p>
-                        <p>Rimanenza: <span>{ restoEuro () } €</span></p>
+                            <div className="mb-3">
+                                <label className="form-label">Descrizione</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder='prodotto'
+                                    id='descrizione'
+                                    value={ descrizione }
+                                    onChange={ ( e ) => setDescrizione ( e.target.value ) }  // Aggiorna lo stato descrizione
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Prezzo</label>
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    placeholder='prezzo'
+                                    id='prezzo'
+                                    min={ 0 }
+                                    value={ prezzo }
+                                    onChange={ ( e ) => setPrezzo ( e.target.value ) }
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Quantità</label>
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    placeholder='1'
+                                    id='quantita'
+                                    value={ quantita }
+                                    min={ 1 }
+                                    onChange={ ( e ) => setQuantita ( parseInt ( e.target.value ) || 1 ) }
+                                />
+                            </div>
+                            <button className="btn btn-success" onClick={ () => {
+                                addItemShopList ( descrizione, prezzo, quantita );
+                            } }>Add Product
+                            </button>
+                        </div>
+
+
+                    </div>
+                    <div className="list-header">
+                        <FaShoppingCart
+                            className='icons'
+                            onClick={ () => {
+                                removeItemFromLocalStorage ()
+                            } }
+                        />
+                        <h4>Shop List</h4>
+                    </div>
+                    <div className="list-content">
+                        {
+                            errore ? (
+                                <div className="alert alert-danger" role="alert">
+                                    Attenzione, potrebbe mancare qualche parametro...
+                                </div>
+                            ) : (
+                                <table className="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Product</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Q.ta</th>
+                                        <th scope='col'>Action</th>
+                                    </tr>
+                                    </thead>
+                                    {
+                                        spesa.map ( ( el ) => {
+                                            return (
+                                                <tbody key={ el.id }>
+                                                <tr>
+                                                    <td key={ el.id }>{ el.descrizione }</td>
+                                                    <td>{ el.prezzo }€</td>
+                                                    <td>{ el.qta }</td>
+                                                    <td onClick={ () => removeItemShopList ( el.id ) }><IoTrash/></td>
+                                                </tr>
+                                                </tbody>
+                                            )
+                                        } ) }
+                                </table>
+                            ) }
+                    </div>
+                    <div className="totals-display">
+                        <h4 className="totale-spesa">Totale
+                            Spesa: { isNaN ( totaleSpesa ) ? '0.00' : totaleSpesa.toFixed ( 2 ) }€</h4>
+                        <hr/>
+                        <div className='buoni'>
+                            <p className={ (diffXBuono () || buoniUtilizzabili () < 1) ? 'show' : 'hide' }>
+                                {
+                                    errore ? '' : (
+                                        <>
+                                            Aggiungi <span>{ diffXBuono ().toFixed ( 2 ) }€ </span> { messageBuoni }
+                                        </>
+                                    ) }
+                            </p>
+
+                            <p className={ diffXBuono () && buoniUtilizzabili () < 1 ? 'hide' : 'show' }>
+                                Buoni Utilizzabili: <span>{ buoniUtilizzabili () }</span>
+                            </p>
+                            <p>Rimanenza: <span>{ restoEuro () } €</span></p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <BottomNavbar/>
+        </ShopWrapper>
     )
 }
-
+const ShopWrapper = styled.div`
+    min-height: 100vh;
+    padding: 24px 20px 110px; /* spazio in basso per la navbar fissa */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(180deg, #e9f8ff 0%, #ffffff 55%);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color: #1f2937;
+`;
 export default BuoniPastoCalculator;

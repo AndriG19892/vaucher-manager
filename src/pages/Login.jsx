@@ -16,12 +16,13 @@ const Login = () => {
         setLoading ( true );
         if ( !email || !password ) return setError ( "Inserisci tutti i campi" );
         try {
-            const responseFromServer = await axios.post ( `${ process.env.REACT_APP_API_URL }/login`, {
+            const responseFromServer = await axios.post ( `${ process.env.REACT_APP_AUTH_API_URL }/login`, {
                 email,
                 password,
             } );
             if ( responseFromServer.data.success && responseFromServer.data.token ) {
                 localStorage.setItem ( 'token', responseFromServer.data.token );
+                localStorage.setItem( 'userId', responseFromServer.data.userData.id);
                 setLoading ( false );
                 navigate ( '/' );
             } else {

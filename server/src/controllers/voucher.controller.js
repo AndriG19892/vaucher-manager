@@ -26,3 +26,4 @@ exports.createNewVoucher = async ( req, res ) => {
         } )
     }
 }
+

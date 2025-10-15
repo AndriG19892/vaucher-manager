@@ -3,7 +3,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile  # o come lo chiami
+      dockerfile: Dockerfile
     volumes:
       - ./src:/app/src
       - ./public:/app/public
@@ -28,7 +28,7 @@ services:
     image: mongo:6
     restart: always
     ports:
-      - "27017:27017"
+      - "27017:27018"
     volumes:
       - ./data/mongo:/data/db
 
