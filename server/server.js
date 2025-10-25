@@ -3,11 +3,10 @@ const cors = require ( 'cors' );
 const express = require ( 'express' );
 const config = require ( './config' );
 const mongoose = require ( 'mongoose' );
-const {productSchema, productModel} = require ( './src/models/product.model.js' );
-const {userSchema, userModel} = require ( './src/models/users.model.js' );
-const {voucherSchema, voucherModel} = require ( './src/models/voucher.model.js' );
 const authRouter = require ( './src/routes/auth.router' );
 const userRouter = require ( './src/routes/users.router' );
+const vouchersRouter = require ( './src/routes/vouchers.router' );
+const shopRouter = require ( './src/routes/shop.router' );
 const app = express ();
 
 app.use ( express.json () );
@@ -26,10 +25,12 @@ app.get ( '/', ( req, res ) => {
 
 app.use ( '/api/auth', authRouter );
 app.use ( '/api/users', userRouter );
+app.use ( '/api/vouchers', vouchersRouter );
+app.use ( '/api/shop', shopRouter );
 
 
 app.listen ( config.port, () => {
-    console.log ( `listening on port ${config.port}` );
+    console.log ( `listening on port ${ config.port }` );
 } );
 
 

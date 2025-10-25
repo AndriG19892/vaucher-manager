@@ -1,7 +1,7 @@
 const {validationResult} = require ( 'express-validator' );
 const {userModel} = require ( '../models/users.model' );
-const AppError = require ( '../errors/AppError' );
-const ErrorMessage = require ( '../errors/ErrorMessages' );
+const AppError = require ( '../Errors/AppError' );
+const ErrorMessage = require ( '../Errors/ErrorMessages' );
 const jwt = require ( 'jsonwebtoken' );
 const config = require ( '../../config' );
 const bcrypt = require ( 'bcrypt' );
@@ -15,7 +15,7 @@ exports.register = async ( req, res ) => {
     if ( !errors.isEmpty () ) {
         return res.status ( 400 ).json ( {
             success: false,
-            errors: errors.array (),
+            errors: [{msg: ErrorMessage.MISSING_FIELDS}],
             message: ErrorMessage.VALIDATION_ERR,
         } );
     }

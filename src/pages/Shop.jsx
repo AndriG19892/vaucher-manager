@@ -1,19 +1,25 @@
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {FaShoppingCart} from "react-icons/fa";
 import {MdAddShoppingCart} from "react-icons/md";
+import {Save} from "lucide-react";
+import {useUserContext} from "../components/UserContext";
 import {IoTrash} from "react-icons/io5";
 import BottomNavbar from "../components/BottomNavbar";
 import styled from "styled-components";
 
 
 const BuoniPastoCalculator = () => {
-    const [spesa, setSpesa] = useState ( [] );
+    const [listaSpesa, setListaSpesa] = useState ( [] );
+    const [categoria, setCategoria] = useState ( '' );
     const [valoreBuono, setValoreBuono] = useState ( 0 );
     const [descrizione, setDescrizione] = useState ( '' );
-    const [prezzo, setPrezzo] = useState ( '' );
+    const [prezzo, setPrezzo] = useState ( 0 );
     const [quantita, setQuantita] = useState ( 1 );
     const [errore, setErrore] = useState ( false );
-
+    const {vouchers, userData} = useUserContext ();
+    const userId = userData?._id;
+    //setValoreBuono(vouchers[0]?.value);
+    //console.log ( valoreBuono );
     /*  -----------------------------------------------------------------------------------------------
       checking input
     --------------------------------------------------------------------------------------------------- */
@@ -27,16 +33,22 @@ const BuoniPastoCalculator = () => {
             return true;
         }
     }
+    const resetForm = () => {
+        setDescrizione ( '' );
+        setPrezzo ( '' );
+        setQuantita ( 1 );
+        setErrore ( false );
+    };
     /*  -----------------------------------------------------------------------------------------------
       adding new product
     --------------------------------------------------------------------------------------------------- */
-    const addItemShopList = ( descrizione, prezzo, qta ) => {
+    const addItemShopList = ( descrizione, prezzo, quantita ) => {
         if ( !checkInput () ) {
             return false;
         }
-        console.log ( prezzo, qta );
+        //console.log ( prezzo, quantita );
         const parsedPrezzo = parseFloat ( prezzo );
-        const parsedQta = parseInt ( qta );
+        const parsedQta = parseInt ( quantita );
         if ( descrizione === '' ) {
             //console.log("errore");
             setErrore ( true );
@@ -45,47 +57,33 @@ const BuoniPastoCalculator = () => {
         const nuovoProdotto = {
             id: Date.now (),
             descrizione,
-            prezzo: parsedPrezzo,
-            qta: parsedQta,
+            importo: parsedPrezzo,
+            quantita: parsedQta,
         };
 
-        setSpesa ( [...spesa, nuovoProdotto] );
-        setErrore ( false );
-        setDescrizione ( '' );
-        setPrezzo ( '' );
-        setQuantita ( '' )
+        setListaSpesa ( [...listaSpesa, nuovoProdotto] );
+        resetForm ();
     }
 
-    /*  -----------------------------------------------------------------------------------------------
-    Salvo la lista nel local storage
-    --------------------------------------------------------------------------------------------------- */
+    // Aggiorna valore buono solo quando cambia vouchers
     useEffect ( () => {
-        localStorage.setItem ( 'valueBuono', valoreBuono )
-        //salvo la lista nel localstorage
-        if ( spesa.length > 0 ) {
-            localStorage.setItem ( 'spesa', JSON.stringify ( spesa ) );
+        if ( vouchers?.length > 0 ) {
+            setValoreBuono ( vouchers[0].value );
+            localStorage.setItem ( 'valueBuono', vouchers[0].value );
         }
+    }, [vouchers] );
 
-    }, [spesa] )
-
-    /*  -----------------------------------------------------------------------------------------------
-    Carico la lista dal local storage
-    --------------------------------------------------------------------------------------------------- */
+// Salva la spesa solo quando cambia
     useEffect ( () => {
-        const savedSpesa = localStorage.getItem ( 'spesa' );
-        const savedVaucherValue = localStorage.getItem ( 'valueBuono' );
-        if ( savedSpesa ) {
-            setValoreBuono ( savedVaucherValue )
-            setSpesa ( JSON.parse ( savedSpesa ) )
-        }
-    }, [] );
+        localStorage.setItem ( 'spesa', JSON.stringify ( listaSpesa ) );
+    }, [listaSpesa] );
 
     //rimuovo i dati dal local storage
 
     const removeItemFromLocalStorage = () => {
         localStorage.removeItem ( 'valueBuono' );
         localStorage.removeItem ( 'spesa' );
-        setSpesa ( [] )
+        setListaSpesa ( [] )
     }
 
     /*  -----------------------------------------------------------------------------------------------
@@ -93,7 +91,7 @@ const BuoniPastoCalculator = () => {
     --------------------------------------------------------------------------------------------------- */
     const removeItemShopList = ( id ) => {
 
-        setSpesa ( oldValue => {
+        setListaSpesa ( oldValue => {
             return oldValue.filter ( product => product.id !== id )
         } )
     }
@@ -102,10 +100,10 @@ const BuoniPastoCalculator = () => {
       operazioni su spesa e buoni pasto
     --------------------------------------------------------------------------------------------------- */
     const totaleSpesa = useMemo ( () => {
-        const totale = spesa.reduce ( ( acc, item ) => acc + (item.prezzo * item.qta), 0 );
+        const totale = listaSpesa.reduce ( ( acc, item ) => acc + (item.importo * item.quantita), 0 );
         return isNaN ( totale ) ? 0 : totale;
-    }, [spesa] );
-
+    }, [listaSpesa] );
+    //console.log ("totale:",totaleSpesa);
     const buoniUtilizzabili = useCallback ( () => {
         totaleSpesa.toFixed ( 2 );
         if ( !valoreBuono ) {
@@ -117,29 +115,57 @@ const BuoniPastoCalculator = () => {
     }, [totaleSpesa, valoreBuono] );
 
 
-    const restoEuro = () => {
+    const restoEuro = useMemo ( () => {
         return (totaleSpesa - (buoniUtilizzabili () * valoreBuono)).toFixed ( 2 );
-    }
+    }, [totaleSpesa, valoreBuono, buoniUtilizzabili] );
 
-    const diffXBuono = () => {
-        if ( spesa.length === 0 ) {
+    const differenzaProssimoBuono = () => {
+        if ( listaSpesa.length === 0 ) {
             //console.log("crash");
             return 0
         }
         if ( buoniUtilizzabili () >= 1 ) {
 
-            return valoreBuono - restoEuro ();
+            return valoreBuono - restoEuro;
         }
         return valoreBuono - totaleSpesa;
+    }
+
+    const saveSpesa = async () => {
+        console.log ("user id", userId);
+        console.log (listaSpesa);
+        if ( listaSpesa.length === 0 ) return;
+        try {
+            const response = await fetch ( `${ process.env.REACT_APP_SHOP_API_URL }create`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify ( {
+                    userId: userId,
+                    prodotti: listaSpesa,
+                    categoria: categoria,
+                    buoniUtilizzati:buoniUtilizzabili(),
+                } )
+            } );
+            const data = await response.json ();
+            console.log (data);
+            if ( data.success ) {
+                console.log ( "spesa salvata con successo", data.shop );
+                setListaSpesa ( [] );
+            }
+        } catch
+            (err) {
+            console.error ( 'Errore nel salvataggio:', err );
+
+        }
     }
 
 
     const messageBuoni = buoniUtilizzabili () >= 1 ? "per usare il prossimo buono" : "per usare un buono";
 
-    //console.log("differenza", diffXBuono());
-    //console.log("spesa", spesa.length);
-    //console.log("buoni utilizzabili ", buoniUtilizzabili());
-    //console.log(messageBuoni);
+//console.log("differenza", diffXBuono());
+//console.log("spesa", spesa.length);
+//console.log("buoni utilizzabili ", buoniUtilizzabili());
+//console.log(messageBuoni);
 
     return (
         <ShopWrapper>
@@ -152,8 +178,18 @@ const BuoniPastoCalculator = () => {
                                 type="number"
                                 className="form-control"
                                 placeholder={ valoreBuono }
-                                value={ valoreBuono }
+                                value={ valoreBuono ?? 0 }
                                 onChange={ ( e ) => setValoreBuono ( e.target.value ) }
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Categoria spesa</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder={ categoria || '' }
+                                value={ categoria ?? '' }
+                                onChange={ ( e ) => setCategoria ( e.target.value ) }
                             />
                         </div>
                     </div>
@@ -183,7 +219,7 @@ const BuoniPastoCalculator = () => {
                                     placeholder='prezzo'
                                     id='prezzo'
                                     min={ 0 }
-                                    value={ prezzo }
+                                    value={ prezzo || '' }
                                     onChange={ ( e ) => setPrezzo ( e.target.value ) }
                                 />
                             </div>
@@ -233,13 +269,13 @@ const BuoniPastoCalculator = () => {
                                     </tr>
                                     </thead>
                                     {
-                                        spesa.map ( ( el ) => {
+                                        listaSpesa.map ( ( el ) => {
                                             return (
                                                 <tbody key={ el.id }>
-                                                <tr>
-                                                    <td key={ el.id }>{ el.descrizione }</td>
-                                                    <td>{ el.prezzo }€</td>
-                                                    <td>{ el.qta }</td>
+                                                <tr key={ el.id }>
+                                                    <td>{ el.descrizione }</td>
+                                                    <td>{ el.importo }€</td>
+                                                    <td>{ el.quantita }</td>
                                                     <td onClick={ () => removeItemShopList ( el.id ) }><IoTrash/></td>
                                                 </tr>
                                                 </tbody>
@@ -253,23 +289,27 @@ const BuoniPastoCalculator = () => {
                             Spesa: { isNaN ( totaleSpesa ) ? '0.00' : totaleSpesa.toFixed ( 2 ) }€</h4>
                         <hr/>
                         <div className='buoni'>
-                            <p className={ (diffXBuono () || buoniUtilizzabili () < 1) ? 'show' : 'hide' }>
+                            <p className={ (differenzaProssimoBuono () || buoniUtilizzabili () < 1) ? 'show' : 'hide' }>
                                 {
                                     errore ? '' : (
                                         <>
-                                            Aggiungi <span>{ diffXBuono ().toFixed ( 2 ) }€ </span> { messageBuoni }
+                                            Aggiungi <span>{ differenzaProssimoBuono ().toFixed ( 2 ) }€ </span> { messageBuoni }
                                         </>
                                     ) }
                             </p>
 
-                            <p className={ diffXBuono () && buoniUtilizzabili () < 1 ? 'hide' : 'show' }>
+                            <p className={ differenzaProssimoBuono () && buoniUtilizzabili () < 1 ? 'hide' : 'show' }>
                                 Buoni Utilizzabili: <span>{ buoniUtilizzabili () }</span>
                             </p>
-                            <p>Rimanenza: <span>{ restoEuro () } €</span></p>
+                            <p>Rimanenza: <span>{ restoEuro } €</span></p>
                         </div>
+                        <button className="btn btn-success" onClick={ () => {saveSpesa()} }>
+                            <Save />
+                        </button>
                     </div>
                 </div>
             </div>
+
             <BottomNavbar/>
         </ShopWrapper>
     )

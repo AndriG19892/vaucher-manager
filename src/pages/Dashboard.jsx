@@ -1,48 +1,20 @@
-// Dashboard.js
-import React, {useEffect, useState} from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
-import { ShoppingBag, Ticket, User } from "lucide-react";
+import {useUserContext} from "../components/UserContext";
+import {useNavigate} from "react-router-dom";
+import {ShoppingBag, Ticket, User} from "lucide-react";
 import BottomNavbar from "../components/BottomNavbar";
 import styled from 'styled-components';
 
 
 const Dashboard = () => {
     const navigate = useNavigate ();
-    const location = useLocation ();
-    const [user, setUser] = useState ( '' );
-    const [vouchers, setVouchers] = useState ( [] );
-    const [valueOfVouchers, setValueOfVouchers] = useState ( 0 );
-    const [loading, setLoading] = useState ( false );
-
-    const userId = localStorage.getItem ( 'userId' );
-    const token = localStorage.getItem ( 'token' );
-    useEffect ( () => {
-        async function fetchUserData() {
-            try {
-                const res = await fetch ( `${ process.env.REACT_APP_USER_API_URL }/${ userId }`, {
-                    headers: {
-                        Authorization: `Bearer ${ token }`,
-                    }
-
-                } );
-                setLoading ( true );
-                const data = await res.json ()
-                setUser ( data.user );
-                setVouchers ( data.vouchers )
-            } catch (err) {
-                console.error ( "Errore durante il recupero dei dati", err );
-            } finally {
-                setLoading ( false );
-            }
-        }
-        fetchUserData ();
-    }, [location.pathname] );
-
-    if ( loading ) return <p>Caricamento...</p>;
+    const {userData, vouchers, loading} = useUserContext ();
+    // Mostra caricamento se i dati non sono ancora pronti
+    if ( loading || !userData ) return <p>Caricamento...</p>;
+    console.log (vouchers);
     return (
         <DashboardWrapper>
             <HeaderCard>
-                <Greeting>👋 Ciao, { user.name }!</Greeting>
+                <Greeting>👋 Ciao {userData.name}</Greeting>
                 <Info>
                     Hai <span>{ vouchers[0]?.quantity }</span> voucher disponibili
                 </Info>
@@ -73,7 +45,7 @@ const Dashboard = () => {
                 </BigButton>
 
                 <BigButton
-                    onClick={ () => navigate ( "/user" ) }
+                    onClick={ () => navigate ( "/profilo" ) }
                     bg="#10b981"
                     aria-label="User"
                 >

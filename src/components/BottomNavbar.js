@@ -1,10 +1,10 @@
 import React from 'react';
-import {ShoppingBag, Ticket, User} from "lucide-react";
+import {ShoppingBag, Ticket, User, LayoutDashboard} from "lucide-react";
 import styled from "styled-components";
 import {useNavigate} from "react-router-dom";
 
 const BottomNavbar = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate ();
     return (
         <BottomNav aria-label="Primary navigation">
             <NavButton color="#0ea5e9" onClick={ () => navigate ( "/shop" ) }>
@@ -12,12 +12,18 @@ const BottomNavbar = () => {
                 <span>Shop</span>
             </NavButton>
 
+            <NavButton color="#673ab7" onClick={ () => navigate ( "/dashboard" ) }>
+                <LayoutDashboard size={ 22 }/>
+                <span>Dashboard</span>
+            </NavButton>
+
             <NavButton color="#f59e0b" onClick={ () => navigate ( "/vouchers" ) }>
                 <Ticket size={ 22 }/>
                 <span>Vouchers</span>
             </NavButton>
 
-            <NavButton color="#10b981" onClick={ () => navigate ( "/user" ) }>
+
+            <NavButton color="#10b981" onClick={ () => navigate ( "/profilo" ) }>
                 <User size={ 22 }/>
                 <span>User</span>
             </NavButton>

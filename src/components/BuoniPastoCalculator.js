@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {FaShoppingCart} from "react-icons/fa";
 import {MdAddShoppingCart} from "react-icons/md";
+import {useUserContext} from "./UserContext";
 import {IoTrash} from "react-icons/io5";
 
 
@@ -11,7 +12,9 @@ const BuoniPastoCalculator = () => {
     const [prezzo, setPrezzo] = useState ( '' );
     const [quantita, setQuantita] = useState ( 1 );
     const [errore, setErrore] = useState ( false );
-
+    const {vouchers} = useUserContext ();
+    setValoreBuono(vouchers[0]?.value );
+    console.log (valoreBuono);
     /*  -----------------------------------------------------------------------------------------------
       checking input
     --------------------------------------------------------------------------------------------------- */
@@ -134,10 +137,6 @@ const BuoniPastoCalculator = () => {
 
     const messageBuoni = buoniUtilizzabili () >= 1 ? "per usare il prossimo buono" : "per usare un buono";
 
-    //console.log("differenza", diffXBuono());
-    //console.log("spesa", spesa.length);
-    //console.log("buoni utilizzabili ", buoniUtilizzabili());
-    //console.log(messageBuoni);
 
     return (
         <div className="container">

@@ -1,8 +1,8 @@
 const {validationResult} = require ( 'express-validator' );
 const {userModel} = require('../models/users.model');
 const {voucherModel} = require('../models/voucher.model');
-const AppError = require('../errors/AppError');
-const ErrorMessage = require ( '../errors/ErrorMessages' );
+const AppError = require('../Errors/AppError');
+const ErrorMessage = require ( '../Errors/ErrorMessages' );
 const config = require ( '../../config' );
 
 

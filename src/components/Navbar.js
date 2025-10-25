@@ -18,7 +18,7 @@ const Navbar = () => {
             </Hamburger>
 
             {/* Menu laterale a scomparsa */ }
-            <SideMenu isOpen={ isOpen }>
+            <SideMenu $isOpen={ isOpen }>
                 <MenuLink to="/dashboard" onClick={ () => setIsOpen ( false ) }>Dashboard</MenuLink>
                 <MenuLink to="/shop" onClick={ () => setIsOpen ( false ) }>Spese</MenuLink>
                 <MenuLink to="/vouchers" onClick={ () => setIsOpen ( false ) }>Voucher</MenuLink>
@@ -81,13 +81,13 @@ const SideMenu = styled.div`
         background: #012f43;
         position: fixed;
         top: 0;
-        left: ${ ( {isOpen} ) => (isOpen ? "0" : "-250px") };
+        left: ${ ( {$isOpen} ) => ($isOpen ? "0" : "-250px") };
         font-size: 30px;
         height: 100vh;
         width: 250px;
         padding: 50px 20px;
         transition: left 0.3s ease;
-        box-shadow: ${ ( {isOpen} ) => (isOpen ? "2px 0 5px rgba(0,0,0,0.3)" : "none") };
+        box-shadow: ${ ( {$isOpen} ) => ($isOpen ? "2px 0 5px rgba(0,0,0,0.3)" : "none") };
         z-index: 999;
     }
 `;
