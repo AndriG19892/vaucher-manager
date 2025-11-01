@@ -27,6 +27,34 @@ exports.createNewVoucher = async ( req, res ) => {
         } )
     }
 }
+exports.getVouchersByUserId = async ( req, res ) => {
+    const {userId} = req.params;
+    if ( !userId ) {
+        return res.status ( 400 ).json ( {
+            success: false,
+            message: ErrorMessage.VALIDATION_ERR,
+        } );
+    }
+    try {
+        const vouchers = await voucherModel.find ( {userId} );
+
+        if ( !vouchers ) {
+            return res.status ( 400 ).json ( {
+                success: false,
+                message: ErrorMessage.VOUCHER_NOT_FOUND
+            } )
+        }
+        return res.status ( 200 ).json ( {
+            success: true,
+            vouchers,
+        } );
+    } catch (err) {
+        return res.status ( 500 ).json ( {
+            success: false,
+            message: ErrorMessage.SERVER_ERROR,
+        } )
+    }
+}
 exports.updateVoucher = async ( req, res ) => {
     console.log ( "sono in updateVoucher" )
     const errors = validationResult ( req );

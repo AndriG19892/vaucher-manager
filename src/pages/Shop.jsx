@@ -10,8 +10,9 @@ import styled from "styled-components";
 
 const BuoniPastoCalculator = () => {
     const [listaSpesa, setListaSpesa] = useState ( [] );
-    const [categoria, setCategoria] = useState ( '' );
+    const [categoria, setCategoria] = useState ( 'Spesa Generica' );
     const [valoreBuono, setValoreBuono] = useState ( 0 );
+    const [voucherDisponibili, setVoucherDisponibili] = useState ( 0 );
     const [descrizione, setDescrizione] = useState ( '' );
     const [prezzo, setPrezzo] = useState ( 0 );
     const [quantita, setQuantita] = useState ( 1 );
@@ -69,7 +70,10 @@ const BuoniPastoCalculator = () => {
     useEffect ( () => {
         if ( vouchers?.length > 0 ) {
             setValoreBuono ( vouchers[0].value );
+            setVoucherDisponibili ( vouchers[0].quantity );
+
             localStorage.setItem ( 'valueBuono', vouchers[0].value );
+            localStorage.setItem ( 'quantita', vouchers[0].quantity );
         }
     }, [vouchers] );
 
@@ -130,10 +134,18 @@ const BuoniPastoCalculator = () => {
         }
         return valoreBuono - totaleSpesa;
     }
-
+    const ricaricaDatiAggiornati = async () =>{
+        const vouchersResponse = await fetch(`${process.env.REACT_APP_VOUCHER_API_URL}${userId}`);
+        const vouchersData = await vouchersResponse.json();
+        console.log ( vouchersData );
+        if(vouchersData.success){
+            setVoucherDisponibili( vouchersData.vouchers[0].quantity );
+            setValoreBuono( vouchersData.vouchers[0].value );
+        }
+    }
     const saveSpesa = async () => {
-        console.log ("user id", userId);
-        console.log (listaSpesa);
+        console.log ( "user id", userId );
+        console.log ( listaSpesa );
         if ( listaSpesa.length === 0 ) return;
         try {
             const response = await fetch ( `${ process.env.REACT_APP_SHOP_API_URL }create`, {
@@ -143,13 +155,14 @@ const BuoniPastoCalculator = () => {
                     userId: userId,
                     prodotti: listaSpesa,
                     categoria: categoria,
-                    buoniUtilizzati:buoniUtilizzabili(),
+                    buoniUtilizzati: buoniUtilizzabili (),
                 } )
             } );
             const data = await response.json ();
-            console.log (data);
+            console.log ( data );
             if ( data.success ) {
                 console.log ( "spesa salvata con successo", data.shop );
+                ricaricaDatiAggiornati( data );
                 setListaSpesa ( [] );
             }
         } catch
@@ -172,6 +185,12 @@ const BuoniPastoCalculator = () => {
             <div className="container">
                 <div className="container content-app">
                     <div className="vaucher-option">
+                        <div className="voucher-disponibili">
+
+                            <p>Voucher Disponibili: <span>{ voucherDisponibili }</span></p>
+
+                        </div>
+
                         <div className="mb-3">
                             <label className="form-label">Valore Singolo buono</label>
                             <input
@@ -303,8 +322,10 @@ const BuoniPastoCalculator = () => {
                             </p>
                             <p>Rimanenza: <span>{ restoEuro } €</span></p>
                         </div>
-                        <button className="btn btn-success" onClick={ () => {saveSpesa()} }>
-                            <Save />
+                        <button className="btn btn-success" onClick={ () => {
+                            saveSpesa ()
+                        } }>
+                            <Save/>
                         </button>
                     </div>
                 </div>
@@ -323,5 +344,111 @@ const ShopWrapper = styled.div`
     background: linear-gradient(180deg, #e9f8ff 0%, #ffffff 55%);
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     color: #1f2937;
+
+    .voucher-disponibili {
+        background: #ffffff;
+        border: 2px solid #10b981; /* verde elegante */
+        border-radius: 16px;
+        padding: 16px 24px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 360px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #065f46;
+            margin: 0;
+
+            span {
+                display: inline-block;
+                margin-left: 8px;
+                background: #10b981;
+                color: white;
+                padding: 6px 14px;
+                border-radius: 12px;
+                font-size: 1.4rem;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            }
+        }
+    }
+
+    .totals-display {
+        width: 100%;
+        background: #fff;
+        border: 2px solid #3b82f6;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .totals-display h4 {
+        margin: 0 0 10px 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e3a8a;
+        text-align: left;
+    }
+
+    .totals-display hr {
+        margin: 10px 0;
+        border: none;
+        height: 1px;
+        background: #d1d5db;
+    }
+
+    .totals-display .buoni {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 1rem;
+        color: #111827;
+    }
+
+    .totals-display .buoni p {
+        display: flex;
+        justify-content: flex-start;
+        margin: 0;
+        align-items: center;
+    }
+
+    .totals-display .buoni span {
+        font-weight: 700;
+        background: #3b82f6;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 8px;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .totals-display button {
+        width: 100%;
+        margin-top: 12px;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .totals-display button:hover {
+        background: #059669;
+    }
+
 `;
 export default BuoniPastoCalculator;

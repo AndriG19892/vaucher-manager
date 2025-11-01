@@ -1,16 +1,18 @@
+const mongoose = require ( 'mongoose' );
 const {validationResult} = require ( 'express-validator' );
 const {userModel} = require ( '../models/users.model' );
 const ErroreMessage = require ( '../Errors/ErrorMessages' );
 const {shopModel} = require ( '../models/shop.model' );
 const ErrorMessage = require ( "../Errors/ErrorMessages" );
 const Message = require ( '../Messages/Messages' );
+const {voucherModel} = require ( "../models/voucher.model" );
 
 /*  --------------------------------------------
 Create shop
 ------------------------------------------------- */
 
 exports.createShopList = async ( req, res ) => {
-    const errors = validationResult ( req );
+    const errors = validationResult ( req.body );
     if ( !errors.isEmpty () ) {
         return res.status ( 400 ).json ( {
             success: false,
@@ -18,30 +20,52 @@ exports.createShopList = async ( req, res ) => {
             message: ErrorMessage.VALIDATION_ERR,
         } );
     }
-    const {userId, prodotti, data, categoria,buoniUtilizzati} = req.body;
+    const {userId, prodotti, categoria, buoniUtilizzati, totale} = req.body;
+    if ( !userId || !prodotti ) {
+        return res.status ( 400 ).json ( {
+            success: false,
+            message: ErrorMessage.MISSING_FIELDS,
+        } );
+    }
+
     try {
-        if ( !prodotti || !Array.isArray ( prodotti ) || prodotti.length === 0 || !categoria ) {
-            return res.status ( 400 ).json ( {
-                success: false,
-                errors: [{msg: ErrorMessage.MISSING_FIELDS}]
-            } );
+
+        // 🔹 Trova i buoni dell'utente
+        const voucher = await voucherModel.findOne ( {userId} );
+
+        if ( !voucher ) {
+            throw new Error ( "Nessun voucher trovato per l'utente." );
         }
-        const newShopList = await new shopModel ( {
+
+        // 🔹 Controlla che i buoni disponibili siano sufficienti
+        if ( voucher.quantity < buoniUtilizzati ) {
+            console.log ("voucher disponibili:", voucher.quantity);
+            throw new Error ( "Buoni insufficienti per completare la spesa." );
+        }
+
+        // 🔹 Decrementa i buoni
+        voucher.quantity -= buoniUtilizzati;
+        await voucher.save ();
+        console.log ( "aggiornati voucher", voucher );
+
+        const shopList = await shopModel.create ( {
             userId,
             prodotti,
-            data: Date.now (),
             categoria,
             buoniUtilizzati,
-        } ).save ();
-        return res.status ( 201 ).json ( {
+            totale,
+            data: Date.now (),
+        } );
+        res.status ( 200 ).json ( {
             success: true,
             message: Message.SHOP_LIST_CREATE_SUCCESS,
-            shopList: newShopList,
+            shopList: shopList[0],
         } );
     } catch (err) {
+        console.log ( "Errore nel salvataggio della spesa", err );
         return res.status ( 500 ).json ( {
             success: false,
-            message: ErrorMessage.SERVER_ERROR, err
+            message: ErrorMessage.SERVER_ERROR,
         } );
     }
 }
@@ -72,3 +96,4 @@ exports.getUserShopLists = async ( req, res ) => {
         } )
     }
 }
+

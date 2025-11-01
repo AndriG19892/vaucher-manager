@@ -34,6 +34,19 @@ header h1 {
     flex-direction: column;
     text-align: left;
 }
+.vaucher-option .voucher-disponibili{
+    display: flex;
+    justify-content: flex-start;
+}
+.vaucher-option .voucher-disponibili p{
+    margin:0;
+}
+.vaucher-option .voucher-disponibili span{
+    font-weight: 600;
+    font-size: 1.6rem;
+    display: block;
+}
+
 
 .vaucher-option label {}
 

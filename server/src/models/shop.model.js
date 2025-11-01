@@ -23,7 +23,7 @@ const shopSchema = new mongoose.Schema ( {
     },
     categoria: {
         type: String,
-        default: 'Generale'
+        default: 'Spesa Generica'
     }
 } );
 
