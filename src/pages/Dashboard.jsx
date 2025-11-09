@@ -24,31 +24,20 @@ const Dashboard = () => {
             </HeaderCard>
 
             <ButtonsGrid>
-                <BigButton
-                    onClick={ () => navigate ( "/shop" ) }
-                    bg="#0ea5e9"
-                    aria-label="Shop"
-                >
+                <BigButton onClick={ () => navigate ( "/shop" ) } bg="#0ea5e9" aria-label="Shop">
                     <ShoppingBag size={ 36 }/>
                     <div style={ {fontSize: 18, fontWeight: 700} }>Shop</div>
                     <SmallLabel>Gestisci la tua spesa</SmallLabel>
                 </BigButton>
 
-                <BigButton
-                    onClick={ () => navigate ( "/vouchers" ) }
-                    bg="#f59e0b"
-                    aria-label="Vouchers"
+                <BigButton onClick={ () => navigate ( "/vouchers" ) } bg="#f59e0b" aria-label="Vouchers"
                 >
                     <Ticket size={ 36 }/>
                     <div style={ {fontSize: 18, fontWeight: 700} }>Vouchers</div>
                     <SmallLabel>Gestisci i tuoi voucher</SmallLabel>
                 </BigButton>
 
-                <BigButton
-                    onClick={ () => navigate ( "/profilo" ) }
-                    bg="#10b981"
-                    aria-label="User"
-                >
+                <BigButton onClick={ () => navigate ( "/profilo" ) } bg="#10b981" aria-label="User">
                     <User size={ 36 }/>
                     <div style={ {fontSize: 18, fontWeight: 700} }>User</div>
                     <SmallLabel>Pannello utente</SmallLabel>

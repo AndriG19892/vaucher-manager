@@ -78,6 +78,7 @@ exports.updateVoucher = async ( req, res ) => {
             {value, quantity},
             {new: true, runValidators: true},
         );
+        console.log (updatedVoucher);
         if ( !updatedVoucher ) {
             return res.status ( 400 ).json ( {
                 errors: errors.array (),

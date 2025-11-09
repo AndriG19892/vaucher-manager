@@ -1,5 +1,6 @@
 const {validationResult} = require ( 'express-validator' );
 const {userModel} = require ( '../models/users.model' );
+const generateToken = require ( '../utils/generateToken' );
 const AppError = require ( '../Errors/AppError' );
 const ErrorMessage = require ( '../Errors/ErrorMessages' );
 const jwt = require ( 'jsonwebtoken' );
@@ -19,8 +20,11 @@ exports.register = async ( req, res ) => {
             message: ErrorMessage.VALIDATION_ERR,
         } );
     }
-    const {name, email, password, nVoucher, valueOfVaucher} = req.body;
+    const {name, email, password, nVoucher, valueOfVouchers} = req.body;
+    let session;
     try {
+        session = await userModel.startSession ();
+        session.startTransaction (); // ora sì, startTransaction è chiamato
         if ( !name || !email || !password ) {
             return res.status ( 400 ).json ( {
                 success: false,
@@ -52,25 +56,40 @@ exports.register = async ( req, res ) => {
 
         //creo sulla tabella Voucher la riga relativa all'utente appena creato
         const newVouchers = new voucherModel ( {
-            value: valueOfVaucher,
+            value: valueOfVouchers,
             quantity: nVoucher,
             userId: savedUser._id,
         } );
-
+        console.log ("idUtente:", savedUser._id);
+        //genero il token:
+        const token = await generateToken ( savedUser._id );
+        console.log ("token:", token);
         //salvo il voucher:
         const savedVouchers = await newVouchers.save ();
+        await session.commitTransaction ();
+        console.log ( savedUser );
         return res.status ( 200 ).json ( {
+            token: token,
             success: true,
             message: 'User saved successfully.',
-            user: savedUser,
+            userData: {
+                id: savedUser._id,
+                email: savedUser.email,
+                name: savedUser.name,
+            },
             voucherData: savedVouchers,
         } );
 
     } catch (err) {
+        if ( session && session.inTransaction () ) { // solo se c'è una transaction attiva
+            await session.abortTransaction ();
+        }
         return res.status ( 500 ).json ( {
             success: false,
             message: ErrorMessage.SERVER_ERROR, err
         } );
+    } finally {
+        if ( session ) session.endSession ();
     }
 }
 
@@ -109,7 +128,8 @@ exports.login = async ( req, res ) => {
             } )
         }
         //genero il token per l'accesso:
-        const token = jwt.sign ( {id: user.id}, config.jwtSecret, {expiresIn: '1h'} );
+        const token = generateToken ( user.id );
+
         return res.status ( 200 ).json ( {
             success: true,
             token: token,

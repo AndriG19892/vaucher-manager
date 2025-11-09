@@ -4,6 +4,7 @@ import ProtectedRoutes from './routes/ProtectedRoute';
 // importo le pagine
 import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
 import Profilo from './pages/Profilo.jsx';
 import Settings from './pages/Settings.jsx';
 import Shop from './pages/Shop.jsx';
@@ -40,6 +41,7 @@ const AnimatedRoutes = () => {
             <AnimatePresence mode="wait">
                 <Routes location={ location } key={ location.pathname }>
                     <Route path="/login" element={ <PageWrapper><Login/></PageWrapper> }/>
+                    <Route path="/register" element={ <PageWrapper><Register/></PageWrapper> }/>
                     <Route path="/" element={ <PageWrapper><ProtectedRoutes><Dashboard/></ProtectedRoutes></PageWrapper> }/>
                     <Route path="/dashboard" element={ <PageWrapper><ProtectedRoutes><Dashboard key={ Date.now () }/></ProtectedRoutes></PageWrapper> }/>
                     <Route path="/shop" element={ <PageWrapper><ProtectedRoutes><Shop/></ProtectedRoutes></PageWrapper> }/>

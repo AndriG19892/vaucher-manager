@@ -1,9 +1,13 @@
 import React, {useEffect, useState} from "react";
+import Swal from 'sweetalert2'
 import styled from "styled-components";
-import {Receipt, ArrowLeft, Loader2} from "lucide-react";
+import {Receipt, ArrowLeft, Loader2, Trash2} from "lucide-react";
 import BottomNavbar from "../components/BottomNavbar";
 import {useUserContext} from "../components/UserContext";
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
+
+const ErrorMessage = require ( '../Errors/ErrorMessages' );
 
 const SpeseUtente = () => {
     const {userData} = useUserContext ();
@@ -11,6 +15,47 @@ const SpeseUtente = () => {
     const [spese, setSpese] = useState ( [] );
     const [loading, setLoading] = useState ( true );
     const navigate = useNavigate ();
+
+    //metodo per la cancellazione della spesa.
+    const handleDeleteShopList = async ( idShopList ) => {
+        const resultOfDeleteShopList = await Swal.fire ( {
+            title: 'Sei Sicuro?',
+            text: 'Questa spesa verrà eliminata definitivamente',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, elimina',
+            cancelButtonText: 'Annulla',
+            customClass: {
+                popup: 'rounded-4 shadow-lg',
+                confirmButton: 'btn btn-danger mx-2',
+                cancelButton: 'btn btn-secondary mx-2'
+            },
+            reverseButtons: true,
+            background: '#fefefe',
+            color: '#333',
+        } );
+        console.log ( idShopList );
+        if ( resultOfDeleteShopList.isConfirmed ) {
+            try {
+                const responseForDeleteShopList = await axios.delete ( `${ process.env.REACT_APP_SHOP_API_URL }delete/${ idShopList }` );
+                console.log ( responseForDeleteShopList );
+                if ( responseForDeleteShopList.status === 200 ) {
+                    setSpese ( ( prev ) => prev.filter ( ( s ) => s._id !== idShopList ) );
+                }
+            } catch (err) {
+                Swal.fire ( {
+                    title:'Errore',
+                    text:'Si è verificato un errore durante la cancellazione',
+                    icon:'error',
+                    confirmButtonColor: '#d33',
+                });
+                console.log ( ErrorMessage.SHOP_LIST_DELETE_ERROR, err );
+            }
+        }
+
+    }
 
     useEffect ( () => {
         const fetchSpese = async () => {
@@ -86,6 +131,11 @@ const SpeseUtente = () => {
                                         { spesa.buoniUtilizzati }
                                     </p>
                                 </div>
+                                <Trash2
+                                    className="trash-icon"
+                                    size={ 22 }
+                                    onClick={ () => handleDeleteShopList ( spesa._id ) }
+                                />
                             </SpesaCard>
                         ) ) }
                     </SpeseList>
@@ -194,6 +244,19 @@ const SpesaCard = styled.div`
         margin-top: 8px;
         font-weight: 600;
         color: #111827;
+    }
+
+    .trash-icon {
+        position: relative;
+        bottom: 10px;
+        left: 10px;
+        color: #ef4444;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.1);
+        }
     }
 `;
 

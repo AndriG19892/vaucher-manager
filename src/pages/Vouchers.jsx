@@ -1,33 +1,57 @@
 import React, {useState, useEffect} from "react";
-import styled from "styled-components";
 import {Save, RefreshCcw} from "lucide-react";
 import {useUserContext} from "../components/UserContext";
 import BottomNavbar from "../components/BottomNavbar";
+import axios from "axios";
+import styled from "styled-components";
+
+const ErrorMessage = require ( '../Errors/ErrorMessages' );
+
 
 const Vouchers = () => {
     const [numberOfVouchers, setnumberOfVouchers] = useState ( [] );
     const [valueOfVouchers, setValueOfVouchers] = useState ( 5.29 );
-    var totale = 0;
-    const {vouchers, loading} = useUserContext ();
+    const [totale, setTotale] = useState ( 0 );
+    const {vouchers, loading, userData} = useUserContext ();
+    let userId = userData?._id;
+    const handleSave = async () => {
+        try {
+            const responseInUpdate = await axios.patch ( `${ process.env.REACT_APP_VOUCHER_API_URL }/update`, {
+                userId,
+                quantity: numberOfVouchers,
+                value: valueOfVouchers,
+            } );
+            alert ( responseInUpdate.data.message );
+            ricaricaDatiAggiornati ();
+        } catch (error) {
+            console.error ( error.message );
+            alert ( ErrorMessage.VOUCHER_UPDATE_ERROR );
+        }
 
-    const handleSave = () => {
-        alert ( `Salvato!\nNumero: ${ numberOfVouchers }\nValore: €${ valueOfVouchers }` );
-        // TODO: collegare API
     };
+    const ricaricaDatiAggiornati = async () => {
+        const vouchersResponse = await fetch ( `${ process.env.REACT_APP_VOUCHER_API_URL }${ userId }` );
+        const vouchersData = await vouchersResponse.json ();
+        console.log ( vouchersData );
 
-    const handleReset = () => {
-        setnumberOfVouchers ( 20 );
-        setValueOfVouchers ( 5.29 );
+        if ( vouchersData.success ) {
+            const newQuantity = vouchersData.vouchers[0].quantity;
+            const newValue = vouchersData.vouchers[0].value;
+
+            setnumberOfVouchers ( newQuantity );
+            setValueOfVouchers ( newValue );
+            setTotale ( newQuantity * newValue ); // ✅ aggiorna anche il totale
+        }
     };
-    totale = vouchers[0]?.quantity * vouchers[0]?.value;
     useEffect ( () => {
         if ( vouchers[0] ) {
             setnumberOfVouchers ( vouchers[0]?.quantity );
             setValueOfVouchers ( vouchers[0]?.value );
+            setTotale ( vouchers[0]?.quantity * vouchers[0]?.value );
+            ricaricaDatiAggiornati ();
         }
-    },[ vouchers ] );
+    }, [vouchers] );
 
-    console.log ( totale );
     return (
         <Wrapper>
             <Card>
@@ -60,14 +84,10 @@ const Vouchers = () => {
 
                 <TotalBox>
                     <p>Totale disponibile</p>
-                    <TotalValue>€ { totale }</TotalValue>
+                    <TotalValue>€ { totale.toFixed(2) }</TotalValue>
                 </TotalBox>
 
                 <ButtonRow>
-                    <SecondaryButton onClick={ handleReset }>
-                        <RefreshCcw size={ 16 }/>
-                        Ripristina
-                    </SecondaryButton>
                     <PrimaryButton onClick={ handleSave }>
                         <Save size={ 16 }/>
                         Salva modifiche

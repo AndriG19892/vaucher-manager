@@ -39,7 +39,7 @@ exports.createShopList = async ( req, res ) => {
 
         // 🔹 Controlla che i buoni disponibili siano sufficienti
         if ( voucher.quantity < buoniUtilizzati ) {
-            console.log ("voucher disponibili:", voucher.quantity);
+            console.log ( "voucher disponibili:", voucher.quantity );
             throw new Error ( "Buoni insufficienti per completare la spesa." );
         }
 
@@ -67,6 +67,39 @@ exports.createShopList = async ( req, res ) => {
             success: false,
             message: ErrorMessage.SERVER_ERROR,
         } );
+    }
+}
+exports.deleteShopListById = async ( req, res ) => {
+    try {
+        const {id: idShopList} = req.params;
+        console.log ( req.params );
+        console.log ( "id spesa da cancellare: ", idShopList );
+        if ( !idShopList ) {
+            return res.status ( 400 ).json ( {
+                success: false,
+                message: ErrorMessage.SHOP_LIST_NOT_FOUND,
+            } )
+        }
+        const deletedShopList = await shopModel.findByIdAndDelete ( idShopList );
+        console.log ( shopModel );
+        if ( !deletedShopList ) {
+            return res.status ( 404 ).json ( {
+                success: false,
+                message: ErrorMessage.SHOP_LIST_NOT_FOUND,
+            } );
+        }
+        return res.status ( 200 ).json ( {
+            success: true,
+            message: Message.SHOP_LIST_DELETE_SUCCESS,
+            deletedShopList
+        } );
+    } catch (err) {
+        console.log ( ErroreMessage.SHOP_LIST_DELETE_ERROR );
+        return res.status ( 500 ).json ( {
+            success: false,
+            message: ErrorMessage.SERVER_ERROR,
+            error: err.message,
+        } )
     }
 }
 exports.getUserShopLists = async ( req, res ) => {

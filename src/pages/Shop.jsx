@@ -17,10 +17,8 @@ const BuoniPastoCalculator = () => {
     const [prezzo, setPrezzo] = useState ( 0 );
     const [quantita, setQuantita] = useState ( 1 );
     const [errore, setErrore] = useState ( false );
-    const {vouchers, userData} = useUserContext ();
+    const {vouchers, userData, fetchUserData} = useUserContext ();
     const userId = userData?._id;
-    //setValoreBuono(vouchers[0]?.value);
-    //console.log ( valoreBuono );
     /*  -----------------------------------------------------------------------------------------------
       checking input
     --------------------------------------------------------------------------------------------------- */
@@ -74,6 +72,7 @@ const BuoniPastoCalculator = () => {
 
             localStorage.setItem ( 'valueBuono', vouchers[0].value );
             localStorage.setItem ( 'quantita', vouchers[0].quantity );
+            ricaricaDatiAggiornati ();
         }
     }, [vouchers] );
 
@@ -96,7 +95,7 @@ const BuoniPastoCalculator = () => {
     const removeItemShopList = ( id ) => {
 
         setListaSpesa ( oldValue => {
-            return oldValue.filter ( product => product.id !== id )
+            return oldValue.filter ( product => product.id !== id );
         } )
     }
 
@@ -134,13 +133,13 @@ const BuoniPastoCalculator = () => {
         }
         return valoreBuono - totaleSpesa;
     }
-    const ricaricaDatiAggiornati = async () =>{
-        const vouchersResponse = await fetch(`${process.env.REACT_APP_VOUCHER_API_URL}${userId}`);
-        const vouchersData = await vouchersResponse.json();
+    const ricaricaDatiAggiornati = async () => {
+        const vouchersResponse = await fetch ( `${ process.env.REACT_APP_VOUCHER_API_URL }${ userId }` );
+        const vouchersData = await vouchersResponse.json ();
         console.log ( vouchersData );
-        if(vouchersData.success){
-            setVoucherDisponibili( vouchersData.vouchers[0].quantity );
-            setValoreBuono( vouchersData.vouchers[0].value );
+        if ( vouchersData.success ) {
+            setVoucherDisponibili ( vouchersData.vouchers[0].quantity );
+            setValoreBuono ( vouchersData.vouchers[0].value );
         }
     }
     const saveSpesa = async () => {
@@ -162,7 +161,7 @@ const BuoniPastoCalculator = () => {
             console.log ( data );
             if ( data.success ) {
                 console.log ( "spesa salvata con successo", data.shop );
-                ricaricaDatiAggiornati( data );
+                ricaricaDatiAggiornati ( data );
                 setListaSpesa ( [] );
             }
         } catch
@@ -175,10 +174,6 @@ const BuoniPastoCalculator = () => {
 
     const messageBuoni = buoniUtilizzabili () >= 1 ? "per usare il prossimo buono" : "per usare un buono";
 
-//console.log("differenza", diffXBuono());
-//console.log("spesa", spesa.length);
-//console.log("buoni utilizzabili ", buoniUtilizzabili());
-//console.log(messageBuoni);
 
     return (
         <ShopWrapper>

@@ -3,5 +3,4 @@ module.exports = {
     USER_UPDATED_SUCCESS:'Utente aggiornato con successo',
     LOGIN_SUCCESS:'Login effettuato con successo',
     SHOP_LIST_CREATE_SUCCESS:'Lista spesa salvata con successo',
-    SHOP_LIST_DELETE_SUCCESS:'Lista spesa eliminata con successo'
 };

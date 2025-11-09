@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import {useNavigate} from 'react-router-dom';
+import SaveInLocalStorage from '../Utils/SaveInLocalStorage';
 import axios from "axios";
 
 const Login = () => {
     const navigate = useNavigate ();
     const [email, setEmail] = useState ( '' );
-    const [loading, setLoading ] = useState ( false );
+    const [loading, setLoading] = useState ( false );
     const [password, setPassword] = useState ( '' );
     const [error, setError] = useState ( '' );
 
@@ -21,8 +22,8 @@ const Login = () => {
                 password,
             } );
             if ( responseFromServer.data.success && responseFromServer.data.token ) {
-                localStorage.setItem ( 'token', responseFromServer.data.token );
-                localStorage.setItem( 'userId', responseFromServer.data.userData.id);
+                SaveInLocalStorage ( 'token', responseFromServer.data.token );
+                SaveInLocalStorage ( 'userId', responseFromServer.data.userData.id );
                 setLoading ( false );
                 navigate ( '/' );
             } else {
