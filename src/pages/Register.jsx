@@ -23,6 +23,7 @@ const Register = () => {
         if ( !name || !email || !password || !vouchers || !valueOfVouchers ) {
             return setError ( 'Inserisci tutti i campi' );
         }
+        console.log("api del backend:", process.env.REACT_APP_AUTH_API_URL);
         try {
             const responseRegisterFromServer = await axios.post ( `${ process.env.REACT_APP_AUTH_API_URL }register`, {
                 name,
