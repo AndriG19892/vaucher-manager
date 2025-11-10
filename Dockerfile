@@ -10,6 +10,17 @@ RUN npm install
 # Copia tutto il codice frontend (escludendo la cartella server)
 COPY . .
 
+# Passaggio delle variabili d'ambiente per React
+ARG REACT_APP_AUTH_API_URL
+ARG REACT_APP_USER_API_URL
+ARG REACT_APP_VOUCHER_API_URL
+ARG REACT_APP_SHOP_API_URL
+
+ENV REACT_APP_AUTH_API_URL=$REACT_APP_AUTH_API_URL
+ENV REACT_APP_USER_API_URL=$REACT_APP_USER_API_URL
+ENV REACT_APP_VOUCHER_API_URL=$REACT_APP_VOUCHER_API_URL
+ENV REACT_APP_SHOP_API_URL=$REACT_APP_SHOP_API_URL
+
 # Costruisce l'app React
 RUN npm run build
 
