@@ -16,8 +16,11 @@ RUN npm run build
 # ===== Serve con Nginx =====
 FROM nginx:alpine
 
-# Copia i file buildati nel path di nginx
+# Copia la build React
 COPY --from=build /app/build /usr/share/nginx/html
+
+# Copia la configurazione Nginx personalizzata
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Espone la porta (Render usa sempre 10000 internamente)
 EXPOSE 10000
