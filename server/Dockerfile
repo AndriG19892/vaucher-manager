@@ -1,20 +1,20 @@
 # ===== Backend Dockerfile =====
 FROM node:18
 
-# Cartella di lavoro nel container
 WORKDIR /app
 
-# Copia solo i file necessari per installare le dipendenze
+# Copia e installa dipendenze
 COPY package*.json ./
+RUN npm install --production
 
-# Installa le dipendenze dentro il container
-RUN npm install
-
-# Copia tutto il codice dell'app
+# Copia tutto il codice
 COPY . .
 
-# Espone la porta del backend
-EXPOSE 5000
+# Render assegna dinamicamente la porta tramite variabile d'ambiente
+ENV PORT=10000
 
-# Comando di avvio
-CMD ["npx", "nodemon", "server.js"]
+# Espone la porta del backend
+EXPOSE 10000
+
+# Avvia l'app (usa node, non nodemon)
+CMD ["node", "server.js"]
