@@ -1,13 +1,26 @@
-FROM node:18
+# ===== Frontend Dockerfile =====
+FROM node:18 AS build
 
 WORKDIR /app
 
+# Copia solo i file necessari all'installazione
 COPY package*.json ./
 RUN npm install
 
-# copia tutto tranne node_modules (che montiamo con volume)
+# Copia tutto il codice frontend (escludendo la cartella server)
 COPY . .
 
-EXPOSE 3000
+# Costruisce l'app React
+RUN npm run build
 
-CMD ["npm", "start"]
+# ===== Serve con Nginx =====
+FROM nginx:alpine
+
+# Copia i file buildati nel path di nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Espone la porta (Render usa sempre 10000 internamente)
+EXPOSE 10000
+
+# Avvia Nginx
+CMD ["nginx", "-g", "daemon off;"]
