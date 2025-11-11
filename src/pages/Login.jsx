@@ -29,9 +29,11 @@ console.log("risposta:",responseFromServer.data.success);
                 navigate ( '/' );
             } else {
                 setError ( responseFromServer.data.message || 'Credenziali errate...' );
+setLoading ( false );
             }
         } catch (err) {
 setError('login errato');
+setLoading ( false );
             console.log ( 'login errato', err );
 
         }
