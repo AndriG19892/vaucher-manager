@@ -379,13 +379,13 @@ const ShopWrapper = styled.div`
     }
 
     .totals-display {
-        width: 100%;
-        background: #fff;
-        border: 2px solid #3b82f6;
-        border-radius: 12px;
-        padding: 16px;
-        margin-top: 20px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    background: #fff;
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .totals-display h4 {
@@ -412,20 +412,23 @@ const ShopWrapper = styled.div`
     }
 
     .totals-display .buoni p {
-        display: flex;
-        justify-content: flex-start;
-        margin: 0;
-        align-items: center;
+    display: flex;
+    align-items: baseline;  /* migliore allineamento testo-numero */
+    gap: 6px;               /* spazio coerente tra testo e span */
+    margin: 0;
+    line-height: 1.4;  
     }
 
     .totals-display .buoni span {
-        font-weight: 700;
-        background: #3b82f6;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 8px;
-        min-width: 60px;
-        text-align: center;
+    font-weight: 700;
+    background: #3b82f6;
+    color: #fff;
+    padding: 2px 8px;       /* ridotto il padding verticale */
+    border-radius: 6px;
+    min-width: 50px;
+    text-align: center;
+    line-height: 1.2;
+    transform: translateY(-1px); /* allineamento visivo perfetto col testo */
     }
 
     .totals-display button {
