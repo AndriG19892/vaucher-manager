@@ -21,7 +21,7 @@ const Login = () => {
                 email,
                 password,
             } );
-console.log("risposta:",responseFromServer);
+console.log("risposta:",responseFromServer.data.success);
             if ( responseFromServer.data.success && responseFromServer.data.token ) {
                 SaveInLocalStorage ( 'token', responseFromServer.data.token );
                 SaveInLocalStorage ( 'userId', responseFromServer.data.userData.id );
