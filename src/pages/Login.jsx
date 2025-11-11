@@ -17,7 +17,7 @@ const Login = () => {
         setLoading ( true );
         if ( !email || !password ) return setError ( "Inserisci tutti i campi" );
         try {
-            const responseFromServer = await axios.post ( `${ process.env.REACT_APP_AUTH_API_URL }/login`, {
+            const responseFromServer = await axios.post ( `${ process.env.REACT_APP_AUTH_API_URL }login`, {
                 email,
                 password,
             } );
