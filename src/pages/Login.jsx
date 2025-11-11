@@ -31,7 +31,9 @@ console.log("risposta:",responseFromServer.data.success);
                 setError ( responseFromServer.data.message || 'Credenziali errate...' );
             }
         } catch (err) {
+setError('login errato');
             console.log ( 'login errato', err );
+
         }
     };
 
