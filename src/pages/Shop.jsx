@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
+import Swal from 'sweetalert2';
 import {FaShoppingCart} from "react-icons/fa";
 import {MdAddShoppingCart} from "react-icons/md";
 import {Save} from "lucide-react";
@@ -158,6 +159,17 @@ const BuoniPastoCalculator = () => {
                 } )
             } );
             const data = await response.json ();
+            if ( data.success ) {
+                Swal.fire ( {
+                    icon: 'success',
+                    title: 'Salvataggio Riuscito!',
+                    text: 'La tua spesa è stata registrata correttamente',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    position: "top",
+                    toast: true
+                } )
+            }
             console.log ( data );
             if ( data.success ) {
                 console.log ( "spesa salvata con successo", data.shop );
@@ -246,7 +258,7 @@ const BuoniPastoCalculator = () => {
                                     id='quantita'
                                     value={ quantita }
                                     min={ 1 }
-                                    onChange={ ( e ) => setQuantita ( parseInt ( e.target.value )) }
+                                    onChange={ ( e ) => setQuantita ( parseInt ( e.target.value ) ) }
                                 />
                             </div>
                             <button className="btn btn-success" onClick={ () => {
