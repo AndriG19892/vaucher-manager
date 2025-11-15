@@ -166,7 +166,7 @@ const BuoniPastoCalculator = () => {
                     text: 'La tua spesa è stata registrata correttamente',
                     timer: 2000,
                     showConfirmButton: false,
-                    position: "top",
+                    position: "center",
                     toast: true
                 } )
             }
