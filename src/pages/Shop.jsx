@@ -75,7 +75,7 @@ const BuoniPastoCalculator = () => {
             setPrezzo(dati.prezzo || 0);
             setQuantita(dati.quantita || 1);
         }
-    })
+    },[])
 
     // Aggiorna valore buono solo quando cambia vouchers
     useEffect(() => {
