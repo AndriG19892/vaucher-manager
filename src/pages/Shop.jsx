@@ -4,6 +4,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { MdAddShoppingCart } from "react-icons/md";
 import { Save } from "lucide-react";
 import { useUserContext } from "../components/UserContext";
+import SaveInLocalStorage from '../Utils/SaveInLocalStorage';
 import { IoTrash } from "react-icons/io5";
 import BottomNavbar from "../components/BottomNavbar";
 import styled from "styled-components";
@@ -67,7 +68,7 @@ const BuoniPastoCalculator = () => {
 
     useEffect(() => {
         const bozza_spesa = localStorage.getItem("spesa");
-        if(bozza_spesa){
+        if (bozza_spesa) {
             const dati = JSON.parse(bozza_spesa);
             setListaSpesa(dati.listaSpesa || []);
             setCategoria(dati.categoria || "Spesa Generica");
@@ -75,7 +76,7 @@ const BuoniPastoCalculator = () => {
             setPrezzo(dati.prezzo || 0);
             setQuantita(dati.quantita || 1);
         }
-    },[])
+    }, [])
 
     // Aggiorna valore buono solo quando cambia vouchers
     useEffect(() => {
@@ -83,8 +84,8 @@ const BuoniPastoCalculator = () => {
             setValoreBuono(vouchers[0].value);
             setVoucherDisponibili(vouchers[0].quantity);
 
-            localStorage.setItem('valueBuono', vouchers[0].value);
-            localStorage.setItem('quantita', vouchers[0].quantity);
+            SaveInLocalStorage('valueBuono', vouchers[0].value);
+            SaveInLocalStorage('quantita', vouchers[0].quantity);
             ricaricaDatiAggiornati();
         }
     }, [vouchers]);
@@ -98,7 +99,7 @@ const BuoniPastoCalculator = () => {
             prezzo,
             quantita
         }
-        localStorage.setItem('spesa', JSON.stringify(dati));
+        SaveInLocalStorage('spesa', JSON.stringify(dati));
     }, [listaSpesa, categoria, descrizione, prezzo, quantita]);
 
     //rimuovo i dati dal local storage
@@ -189,6 +190,7 @@ const BuoniPastoCalculator = () => {
                     toast: true
                 })
             }
+            removeItemFromLocalStorage();
             console.log(data);
             if (data.success) {
                 console.log("spesa salvata con successo", data.shop);
