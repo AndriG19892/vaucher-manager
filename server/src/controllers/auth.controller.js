@@ -110,7 +110,6 @@ exports.login = async ( req, res ) => {
     try {
         //cerco l'utente tramite email
         const user = await userModel.findOne ( {email: email} );
-        console.log ( "utente", user )
         if ( !user ) {
             return res.status ( 400 ).json ( {
                 success: false,
