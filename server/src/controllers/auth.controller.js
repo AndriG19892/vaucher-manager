@@ -1,12 +1,13 @@
 const {validationResult} = require ( 'express-validator' );
 const {userModel} = require ( '../models/users.model' );
+const {voucherModel} = require ( '../models/voucher.model' );
 const generateToken = require ( '../utils/generateToken' );
-const AppError = require ( '../Errors/AppError' );
 const ErrorMessage = require ( '../Errors/ErrorMessages' );
+const bcrypt = require ( 'bcrypt' );
+const mongoose = require ( 'mongoose' );
 const jwt = require ( 'jsonwebtoken' );
 const config = require ( '../../config' );
-const bcrypt = require ( 'bcrypt' );
-const {voucherModel} = require ( '../models/voucher.model' );
+
 
 /*  --------------------------------------------
 Register
@@ -21,21 +22,12 @@ exports.register = async ( req, res ) => {
         } );
     }
     const {name, email, password, nVoucher, valueOfVouchers} = req.body;
-    let session;
+    const session = await mongoose.startSession ();
     try {
-        session = await userModel.startSession ();
         session.startTransaction (); // ora sì, startTransaction è chiamato
-        if ( !name || !email || !password ) {
-            return res.status ( 400 ).json ( {
-                success: false,
-                errors: [{msg: ErrorMessage.MISSING_FIELDS}],
-                message: ErrorMessage.MISSING_FIELDS,
-            } );
-        }
-        const existingUser = await userModel.findOne ( {email: email} );
-        //console.log ( existingUser );
+        const existingUser = await userModel.findOne ( {email: email} ).session ( session );
         if ( existingUser ) {
-            console.log ( "utente gia registrato" );
+            await session.abortTransaction ();
             return res.status ( 400 ).json ( {
                 success: false,
                 errors: [{msg: ErrorMessage.EMAIL_ALREADY_EXISTS}],
@@ -46,50 +38,43 @@ exports.register = async ( req, res ) => {
         const hashedPassword = await bcrypt.hash ( password, 10 );
 
         //creo il nuovo utente con i dati inseriti
-        const newUser = new userModel ( {
+        const [newUser] = await userModel.create ( [{
             name,
             email,
             password: hashedPassword,
-        } );
-        const savedUser = await newUser.save ();
+        }], {session} );
 
 
         //creo sulla tabella Voucher la riga relativa all'utente appena creato
-        const newVouchers = new voucherModel ( {
+        const newVouchers = await voucherModel.create ( [{
             value: valueOfVouchers,
             quantity: nVoucher,
-            userId: savedUser._id,
-        } );
-        console.log ("idUtente:", savedUser._id);
+            userId: newUser._id,
+        }], [session] );
         //genero il token:
-        const token = await generateToken ( savedUser._id );
-        console.log ("token:", token);
-        //salvo il voucher:
-        const savedVouchers = await newVouchers.save ();
+        const token = await generateToken ( newUser._id );
+
         await session.commitTransaction ();
-        console.log ( savedUser );
-        return res.status ( 200 ).json ( {
-            token: token,
+        return res.status ( 201 ).json ( {
             success: true,
-            message: 'User saved successfully.',
+            token,
             userData: {
-                id: savedUser._id,
-                email: savedUser.email,
-                name: savedUser.name,
+                id: newUser._id,
+                email: newUser.email,
+                name: newUser.name,
             },
-            voucherData: savedVouchers,
+            voucherData: newVouchers,
         } );
 
     } catch (err) {
-        if ( session && session.inTransaction () ) { // solo se c'è una transaction attiva
-            await session.abortTransaction ();
-        }
+        if ( session.inTransaction () ) await session.abortTransaction ();
+        console.error ( "Errore registrazione:", err );
         return res.status ( 500 ).json ( {
             success: false,
             message: ErrorMessage.SERVER_ERROR, err
         } );
     } finally {
-        if ( session ) session.endSession ();
+        await session.endSession ();
     }
 }
 
@@ -97,42 +82,22 @@ exports.register = async ( req, res ) => {
 Login
 ------------------------------------------------- */
 exports.login = async ( req, res ) => {
-    console.log ( "sono in login" )
-    const errors = validationResult ( req );
-    if ( !errors.isEmpty () ) {
-        return res.status ( 400 ).json ( {
-            success: false,
-            errors: [{msg: ErrorMessage.VALIDATION_ERR}],
-            message: ErrorMessage.VALIDATION_ERR,
-        } );
-    }
     const {email, password} = req.body;
     try {
         //cerco l'utente tramite email
-        const user = await userModel.findOne ( {email: email} );
-        if ( !user ) {
-            return res.status ( 400 ).json ( {
+        const user = await userModel.findOne ( {email: email} ).select ( '+password' );
+        if ( !user || (await bcrypt.compare ( password, user.password )) ) {
+            return res.status ( 401 ).json ( {
                 success: false,
-                errors: [{msg: ErrorMessage.USER_NOT_FOUND}],
-                message: ErrorMessage.USER_NOT_FOUND
+                message: ErrorMessage.INVALID_CREDENTIALS
             } );
         }
-        //Confronto la password inserita nel db con l'hash dell'input dell'utente
-        const validPass = await bcrypt.compare ( password, user.password );
-        if ( !validPass ) {
-            return res.status ( 400 ).json ( {
-                success: false,
-                errors: [{msg: ErrorMessage.INVALID_CREDENTIALS}],
-                message: ErrorMessage.INVALID_CREDENTIALS
-            } )
-        }
         //genero il token per l'accesso:
-        const token = generateToken ( user.id );
+        const token = generateToken ( user._id );
 
         return res.status ( 200 ).json ( {
             success: true,
             token: token,
-            message: "login riuscito",
             userData: {
                 id: user._id,
                 email: user.email,
