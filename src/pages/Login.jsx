@@ -21,19 +21,20 @@ const Login = () => {
                 email,
                 password,
             } );
-console.log("risposta:",responseFromServer.data.success);
+            console.log ( "risposta:", responseFromServer.data.success );
             if ( responseFromServer.data.success && responseFromServer.data.token ) {
+                console.log("Token ricevuto dal server:", responseFromServer.data.token);
                 SaveInLocalStorage ( 'token', responseFromServer.data.token );
                 SaveInLocalStorage ( 'userId', responseFromServer.data.userData.id );
                 setLoading ( false );
                 navigate ( '/' );
             } else {
                 setError ( responseFromServer.data.message || 'Credenziali errate...' );
-setLoading ( false );
+                setLoading ( false );
             }
         } catch (err) {
-setError('login errato');
-setLoading ( false );
+            setError ( 'login errato' );
+            setLoading ( false );
             console.log ( 'login errato', err );
 
         }
