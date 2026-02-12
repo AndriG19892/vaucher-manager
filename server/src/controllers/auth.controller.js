@@ -84,7 +84,7 @@ exports.login = async ( req, res ) => {
     try {
         //cerco l'utente tramite email
         const user = await userModel.findOne ( {email: email} ).select ( '+password' );
-        if ( !user || (await bcrypt.compare ( password, user.password )) ) {
+        if ( !user || !(await bcrypt.compare ( password, user.password )) ) {
             return res.status ( 401 ).json ( {
                 success: false,
                 message: ErrorMessage.INVALID_CREDENTIALS
