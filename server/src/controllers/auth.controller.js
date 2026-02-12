@@ -34,14 +34,12 @@ exports.register = async ( req, res ) => {
                 message: ErrorMessage.EMAIL_ALREADY_EXISTS,
             } );
         }
-        //cripto la password:
-        const hashedPassword = await bcrypt.hash ( password, 10 );
 
         //creo il nuovo utente con i dati inseriti
         const [newUser] = await userModel.create ( [{
             name,
             email,
-            password: hashedPassword,
+            password,
         }], {session} );
 
 
