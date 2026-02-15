@@ -27,7 +27,7 @@ const Dashboard = () => {
                 <BigButton onClick={ () => navigate ( "/shop" ) } bg="#0ea5e9" aria-label="Shop">
                     <ShoppingBag size={ 36 }/>
                     <div style={ {fontSize: 18, fontWeight: 700} }>Shop</div>
-                    <SmallLabel>Gestisci la tua spesa</SmallLabel>
+                    <SmallLabel>Gestisci la tua spesa preferita</SmallLabel>
                 </BigButton>
 
                 <BigButton onClick={ () => navigate ( "/vouchers" ) } bg="#f59e0b" aria-label="Vouchers"
